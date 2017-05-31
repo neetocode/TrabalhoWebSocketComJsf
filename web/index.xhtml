@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+        <meta charset="utf-8"/>
+        <link href="resources/style.css" rel="stylesheet"/>
+    </h:head>
+    <h:body>
+        <h2 style="text-align: center;margin: 0">Chat</h2>
+        <div id="main-container">
+            <div id="chat">
+                <!--<div class="bg"></div>-->
+            </div>
+            <div id="actions-container">
+                <div>
+                    <input type="text" id="txtMsg" placeholder="Digite sua mensagem"/>    
+                </div>
+                <div>
+                    <button id="btnEnviar">Enviar</button>
+                </div>
+            </div>
+        </div>
+        <!--
+        <h:form id="form">
+            <h:outputText>Chat</h:outputText>
+            <h:inputTextarea rows="2" id="chat"/>
+            <h:inputText id="txtMsg"/>
+            <h:commandButton value="Enviar" id="btnEnviar"/>
+        </h:form>
+        -->
+
+
+
+
+
+        <script type="text/javascript">
+            (function(){
+                var user = {
+                    token:null
+                };
+                if (!verificaToken()) {
+                    close();
+                }
+                
+                const chat = document.getElementById("chat");
+                const btnEnviar = document.getElementById("btnEnviar");
+                const txtMsg = document.getElementById("txtMsg");
+
+                const ws = new WebSocket("ws://localhost:8080/TrabalhoWebSocket/chat");
+
+                ws.onopen = event => {
+                    console.log("conectado");
+                    autentica();
+                };
+
+                ws.onmessage = event => {
+                    var data = JSON.parse(event.data);
+                    console.log(data);
+                    switch(data.type){
+                        case "message":
+                            chat.insertAdjacentHTML('beforeend', renderUserMessage(data.username, data.message));
+                            break;
+                        case "system":
+                            chat.insertAdjacentHTML('beforeend', renderSystemMessage(data.message));
+                            break;
+                            
+                    }                    
+                };
+
+                ws.onclose = event => {
+                    debugger
+                    console.log("desconectado");
+                };
+
+                btnEnviar.addEventListener('click', sendChatMessage);
+                
+                function close(){
+                    window.history.replaceState({}, 'login', '/TrabalhoWebSocket/faces/login.xhtml');
+                    window.history.go('/TrabalhoWebSocket/faces/login.xhtml');
+                }
+                function sendChatMessage(e) {
+                    e.preventDefault();
+                    const payload = {
+                        message: txtMsg.value,
+                        token: user.token,
+                        to: 'broadcast',
+                        type:'message'
+                    };
+                    ws.send(JSON.stringify(payload));
+                }
+                function autentica(){
+                    const payload = {
+                        type:'authentication',
+                        token: user.token
+                    };
+                    ws.send(JSON.stringify(payload));
+                }
+                function renderUserMessage(username, message) {
+                    return '<div class="user-message">' +
+                            '<span class="username">' + username + '</span>' +
+                            '<span class="message">' + message + '</span>' +
+                            '</div>';
+                }
+                function renderSystemMessage(message) {
+                    return '<div class="system-message">' +
+                            '<span class="message">' + message + '</span>' +
+                            '</div>';
+                }
+
+                function verificaToken() {
+                    var token = getCookie("token");
+                    if (token === null || token === undefined)
+                        return false;
+                    if (token.toString().length === 0)
+                        return false;
+                    user.token = token;
+                    return true;
+                }
+
+                function getCookie(cname) {
+                    var name = cname + "=";
+                    var decodedCookie = decodeURIComponent(document.cookie);
+                    var ca = decodedCookie.split(';');
+                    for (var i in ca) {
+                        var c = ca[i]
+                        while (c.charAt(0) === ' ') {
+                            c = c.substring(1);
+                        }
+                        if (c.indexOf(name) === 0) {
+                            return c.substring(name.length, c.length);
+                        }
+                    }
+                    return null;
+                }
+
+                /*
+                 * mensagem
+                 * idUsuarioDestino
+                 * token
+                 */
+            }());
+
+        </script>
+    </h:body>
+
+
+</html>
+

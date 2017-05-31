@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+        <meta charset="utf-8"/>
+        <link href="resources/style.css" rel="stylesheet"/>
+    </h:head>
+    <h:body>
+        <h:form>
+            <h:inputText value="#{usuarioMb.user.nome}"/>
+            <h:inputSecret value="#{usuarioMb.user.senha}"/>
+            <h:commandButton value="Logar" action="#{usuarioMb.logar()}"/>
+        </h:form>
+        <!--
+        <h:form id="form">
+            <h:outputText>Chat</h:outputText>
+            <h:inputTextarea rows="2" id="chat"/>
+            <h:inputText id="txtMsg"/>
+            <h:commandButton value="Enviar" id="btnEnviar"/>
+        </h:form>
+        -->
+    </h:body>
+
+
+</html>
+
