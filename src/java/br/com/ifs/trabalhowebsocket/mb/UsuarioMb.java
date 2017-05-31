@@ -26,7 +26,8 @@ public class UsuarioMb {
 
     public String logar() throws IllegalArgumentException, UnsupportedEncodingException{
         
-        if (user.getNome().equals("Viado") && user.getSenha().equals("boiola")) {
+        if (user.getNome().equals("Viado") && user.getSenha().equals("boiola") ||
+            user.getNome().equals("Miguel") && user.getSenha().equals("123")) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             cal.add(Calendar.DAY_OF_WEEK, 1);

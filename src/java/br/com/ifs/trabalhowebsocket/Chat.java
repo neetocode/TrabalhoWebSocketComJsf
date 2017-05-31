@@ -29,53 +29,53 @@ public class Chat {
     @OnOpen
     public void handleOpen(Session userSession) throws IOException {
         chatroomUsers.add(userSession);
-        userSession.getBasicRemote().sendText(buildMessageResponseJson("", "Conectado ao servidor. Aguardando autenticação...", "system"));
+        userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Conectado ao servidor. Aguardando autenticação..."));
     }
 
     @OnMessage
     public void handleMessage(String jsonFrame, Session userSession) throws IOException {
         Frame frame = new Frame(new JSONObject(jsonFrame));
-        switch(frame.getType()){
+        DecodedJWT token;
+        switch (frame.getType()) {
             case "authentication":
-                DecodedJWT token = verificaToken(frame.getToken());
-                if(token != null){
-                    userSession.getUserProperties().put("username", token.getClaim("username"));
+                token = verificaToken(frame.getToken());
+                if (token != null) {
+                    userSession.getUserProperties().put("username", token.getClaim("username").asString());
                     userSession.getUserProperties().put("token", token.getToken());
-                    userSession.getBasicRemote().sendText(buildMessageResponseJson("", "Autenticado!","system"));
-                }else{
+                    userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Autenticado!"));
+                } else {
+                    userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
                     handleClose(userSession);
                 }
                 break;
             case "message":
-                String username = (String) userSession.getUserProperties().get("token");
-                break;
-        }
-        
-        
-        if(userMessage.getType().equals("autentication")){
-            userSession.getUserProperties().put("username", userMessage.getUsername());
-            
-            
-        }
-        if(userMessage.getType().equals("message")){
-            String username = (String) userSession.getUserProperties().get("username");
+                token = verificaToken((String) userSession.getUserProperties().get("token"));
+                if (token != null) {
+                    String username = (String) userSession.getUserProperties().get("username");
+                    if (frame.getTo().equals("broadcast")) {
+                        Iterator<Session> iterator = chatroomUsers.iterator();
+                        Session item;
+                        while (iterator.hasNext()) {
+                            item = iterator.next();
+                            boolean sameOrigin = item.getId().equals(userSession.getId());
+                            item.getBasicRemote().sendText(buildMessageResponseJson(username, frame.getMessage(),sameOrigin));
+                        }
+                    } else {
 
-            if (username == null) { // verifique se é a primeira mensagem e seta o username na sessão do WS
-                userSession.getUserProperties().put("username", userMessage.getUsername());
-                username = userMessage.getUsername();
-            }
-            if(userMessage.getTo().equals("broadcast")){
-                Iterator<Session> iterator = chatroomUsers.iterator();
-                while (iterator.hasNext()) {
-                    iterator.next().getBasicRemote().sendText(buildMessageResponseJson(username, userMessage.getMessage(), "message"));
+                    }
+                } else {
+                    userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
+                    handleClose(userSession);
                 }
-            }else{
-
-            }
+                break;
+            default:
+                userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Tipo de frame incorreto"));
+                handleClose(userSession);
+                break;   
         }
+    }
 
-    
-    private DecodedJWT verificaToken(String token) throws IllegalArgumentException, UnsupportedEncodingException{
+    private DecodedJWT verificaToken(String token) throws IllegalArgumentException, UnsupportedEncodingException {
         try {
             Algorithm algorithm = Algorithm.HMAC256("batata-doce");
             JWTVerifier verifier = JWT.require(algorithm)
@@ -93,11 +93,20 @@ public class Chat {
         chatroomUsers.remove(userSession);
     }
 
-    private String buildMessageResponseJson(String username, String message, String type) {
+    private String buildMessageResponseJson(String username, String message, boolean sameOrigin) {
         String json = new JSONObject()
                 .put("from", username)
                 .put("message", message)
-                .put("type", type)
+                .put("type", "message")
+                .put("sameOrigin", sameOrigin)
+                .toString();
+        return json;
+    }
+    
+    private String buildSystemMessageResponseJson(String message) {
+        String json = new JSONObject()
+                .put("message", message)
+                .put("type", "system")
                 .toString();
         return json;
     }

@@ -15,9 +15,13 @@ body{
 #chat{
     width: 100%;
     background-color: #e5ddd5;
-    flex:1;
-    position:relative;
+    flex: 1;
+    position: relative;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 #chat .bg{
     background-image: url(bg.png);
@@ -39,16 +43,24 @@ body{
 .user-message,
 .system-message{
     padding: 10px 6px;
-    margin: 10px;
-    width: auto;
+    margin: 6px 10px;
     border-radius: 10px;
     background-color: rgb(255, 255, 255);
     z-index: 2;
 }
+.user-message{
+    min-width: 20%;
+    width: auto;
+}
 .system-message{
     background-color: #eceaa0;
+    width: 70%;
+    align-self: center;
 }
-
+.user-message.sameOrigin{
+    background-color:#dcf8c6;
+    align-self: flex-end;
+}
 .user-message .username{
     font-weight: bold;
     display: block;

@@ -15,7 +15,7 @@
             </div>
             <div id="actions-container">
                 <div>
-                    <input type="text" id="txtMsg" placeholder="Digite sua mensagem"/>    
+                    <input type="text" id="txtMsg"  placeholder="Digite sua mensagem"/>    
                 </div>
                 <div>
                     <button id="btnEnviar">Enviar</button>
@@ -60,7 +60,7 @@
                     console.log(data);
                     switch(data.type){
                         case "message":
-                            chat.insertAdjacentHTML('beforeend', renderUserMessage(data.username, data.message));
+                            chat.insertAdjacentHTML('beforeend', renderUserMessage(data.from, data.message, data.sameOrigin));
                             break;
                         case "system":
                             chat.insertAdjacentHTML('beforeend', renderSystemMessage(data.message));
@@ -84,10 +84,11 @@
                     e.preventDefault();
                     const payload = {
                         message: txtMsg.value,
-                        token: user.token,
                         to: 'broadcast',
                         type:'message'
                     };
+                    txtMsg.value = '';
+                    txtMsg.focus();
                     ws.send(JSON.stringify(payload));
                 }
                 function autentica(){
@@ -97,8 +98,8 @@
                     };
                     ws.send(JSON.stringify(payload));
                 }
-                function renderUserMessage(username, message) {
-                    return '<div class="user-message">' +
+                function renderUserMessage(username, message, sameOrigin) {
+                    return '<div class="user-message'+(sameOrigin?' sameOrigin':'')+'">' +
                             '<span class="username">' + username + '</span>' +
                             '<span class="message">' + message + '</span>' +
                             '</div>';
@@ -140,6 +141,7 @@
                  * idUsuarioDestino
                  * token
                  */
+                txtMsg.focus();
             }());
 
         </script>

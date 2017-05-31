@@ -17,16 +17,16 @@ public class Frame {
     private String to;
     private String username;
     private final String type;
-    private final String token;
+    private String token;
     
     public Frame(JSONObject jsonObject){
-        this.token = jsonObject.getString("token");
         this.type = jsonObject.getString("type");
-        try{
+        if(this.type.equals("authentication")){
+            this.token = jsonObject.getString("token");
+        }
+        if(this.type.equals("message")){
             this.message = jsonObject.getString("message");
             this.to = jsonObject.getString("to");
-            this.username = jsonObject.getString("username");
-        }catch(JSONException ex){
         }
     }
     
