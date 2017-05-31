@@ -5,23 +5,28 @@
     <h:head>
         <title>Facelet Title</title>
         <meta charset="utf-8"/>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"/>
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"/>
         <link href="resources/style.css" rel="stylesheet"/>
+
     </h:head>
     <h:body>
         <h2 style="text-align: center;margin: 0">Chat</h2>
         <div id="main-container">
-            <div id="chat">
-                <!--<div class="bg"></div>-->
+            <div id="users">
             </div>
-            <div id="actions-container">
-                <div>
-                    <input type="text" id="txtMsg"  placeholder="Digite sua mensagem"/>    
-                </div>
-                <div>
-                    <button id="btnEnviar">Enviar</button>
-                </div>
+            
+        </div>
+        <div id="actions-container">
+            <div>
+                <input type="text" id="txtMsg"  placeholder="Digite sua mensagem"/>    
+            </div>
+            <div>
+                <button id="btnEnviar">Enviar</button>
             </div>
         </div>
+
         <!--
         <h:form id="form">
             <h:outputText>Chat</h:outputText>
@@ -35,116 +40,7 @@
 
 
 
-        <script type="text/javascript">
-            (function(){
-                var user = {
-                    token:null
-                };
-                if (!verificaToken()) {
-                    close();
-                }
-                
-                const chat = document.getElementById("chat");
-                const btnEnviar = document.getElementById("btnEnviar");
-                const txtMsg = document.getElementById("txtMsg");
-
-                const ws = new WebSocket("ws://localhost:8080/TrabalhoWebSocket/chat");
-
-                ws.onopen = event => {
-                    console.log("conectado");
-                    autentica();
-                };
-
-                ws.onmessage = event => {
-                    var data = JSON.parse(event.data);
-                    console.log(data);
-                    switch(data.type){
-                        case "message":
-                            chat.insertAdjacentHTML('beforeend', renderUserMessage(data.from, data.message, data.sameOrigin));
-                            break;
-                        case "system":
-                            chat.insertAdjacentHTML('beforeend', renderSystemMessage(data.message));
-                            break;
-                            
-                    }                    
-                };
-
-                ws.onclose = event => {
-                    debugger
-                    console.log("desconectado");
-                };
-
-                btnEnviar.addEventListener('click', sendChatMessage);
-                
-                function close(){
-                    window.history.replaceState({}, 'login', '/TrabalhoWebSocket/faces/login.xhtml');
-                    window.history.go('/TrabalhoWebSocket/faces/login.xhtml');
-                }
-                function sendChatMessage(e) {
-                    e.preventDefault();
-                    const payload = {
-                        message: txtMsg.value,
-                        to: 'broadcast',
-                        type:'message'
-                    };
-                    txtMsg.value = '';
-                    txtMsg.focus();
-                    ws.send(JSON.stringify(payload));
-                }
-                function autentica(){
-                    const payload = {
-                        type:'authentication',
-                        token: user.token
-                    };
-                    ws.send(JSON.stringify(payload));
-                }
-                function renderUserMessage(username, message, sameOrigin) {
-                    return '<div class="user-message'+(sameOrigin?' sameOrigin':'')+'">' +
-                            '<span class="username">' + username + '</span>' +
-                            '<span class="message">' + message + '</span>' +
-                            '</div>';
-                }
-                function renderSystemMessage(message) {
-                    return '<div class="system-message">' +
-                            '<span class="message">' + message + '</span>' +
-                            '</div>';
-                }
-
-                function verificaToken() {
-                    var token = getCookie("token");
-                    if (token === null || token === undefined)
-                        return false;
-                    if (token.toString().length === 0)
-                        return false;
-                    user.token = token;
-                    return true;
-                }
-
-                function getCookie(cname) {
-                    var name = cname + "=";
-                    var decodedCookie = decodeURIComponent(document.cookie);
-                    var ca = decodedCookie.split(';');
-                    for (var i in ca) {
-                        var c = ca[i]
-                        while (c.charAt(0) === ' ') {
-                            c = c.substring(1);
-                        }
-                        if (c.indexOf(name) === 0) {
-                            return c.substring(name.length, c.length);
-                        }
-                    }
-                    return null;
-                }
-
-                /*
-                 * mensagem
-                 * idUsuarioDestino
-                 * token
-                 */
-                txtMsg.focus();
-            }());
-
-        </script>
+        <script type="text/javascript" src="resources/script.js"></script>
     </h:body>
 
 
