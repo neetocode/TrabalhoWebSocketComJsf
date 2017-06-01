@@ -25,25 +25,29 @@ public class CookieHelper {
 
     Cookie[] userCookies = request.getCookies();
     if (userCookies != null && userCookies.length > 0 ) {
-        for (int i = 0; i < userCookies.length; i++) {
-            if (userCookies[i].getName().equals(name)) {
-                cookie = userCookies[i];
+        for (Cookie userCookie : userCookies) {
+            if (userCookie.getName().equals(name)) {
+                cookie = userCookie;
                 break;
             }
         }
     }
+    
     HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
     
     
     if (cookie != null) {
-        cookie.setValue(value);
-    } else {
-        cookie = new Cookie(name, value);
-        cookie.setPath(request.getContextPath());
+        cookie.setValue(null);
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+    Cookie newCookie = new Cookie(name, value);
+    newCookie.setPath(request.getContextPath());
+    newCookie.setMaxAge(expiry);
 
-    cookie.setMaxAge(expiry);
+    response.addCookie(newCookie);
+    
+    
   }
 
   public Cookie getCookie(String name) {
@@ -51,13 +55,13 @@ public class CookieHelper {
     FacesContext facesContext = FacesContext.getCurrentInstance();
 
     HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
-    Cookie cookie = null;
+    Cookie cookie;
 
     Cookie[] userCookies = request.getCookies();
     if (userCookies != null && userCookies.length > 0 ) {
-        for (int i = 0; i < userCookies.length; i++) {
-            if (userCookies[i].getName().equals(name)) {
-                cookie = userCookies[i];
+        for (Cookie userCookie : userCookies) {
+            if (userCookie.getName().equals(name)) {
+                cookie = userCookie;
                 return cookie;
             }
         }

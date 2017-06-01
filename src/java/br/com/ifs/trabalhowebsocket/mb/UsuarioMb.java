@@ -6,14 +6,9 @@
 package br.com.ifs.trabalhowebsocket.mb;
 
 import br.com.ifs.trabalhowebsocket.helper.CookieHelper;
+import br.com.ifs.trabalhowebsocket.helper.Security;
 
 import br.com.ifs.trabalhowebsocket.transfer.Usuario;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
-import java.util.Date;
-import javax.enterprise.context.Conversation;
 import javax.faces.bean.ManagedBean;
 
 /**
@@ -25,7 +20,7 @@ public class UsuarioMb {
 
     private Usuario user = new Usuario();
     
-    public String logar() throws IllegalArgumentException, UnsupportedEncodingException{
+    public String logar(){
         
         if (
                 user.getNome().equals("Danilo Souza") && user.getSenha().equals("123") ||
@@ -36,17 +31,8 @@ public class UsuarioMb {
             if(user.getNome().equals("Danilo Souza")) user.setId(1);
             if(user.getNome().equals("Miguel Neto")) user.setId(2);
             if(user.getNome().equals("Alexandre Carlo")) user.setId(3);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(new Date());
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-            Algorithm algorithm = Algorithm.HMAC256("batata-doce");
-            String token = JWT.create()
-                    .withIssuer("br.com.ifs.trabalhowebsocket")
-                    .withClaim("username", user.getNome())
-                    .withClaim("userid", Integer.toString(user.getId()))
-                    .withExpiresAt(cal.getTime())
-                    .sign(algorithm);
             
+            String token = Security.GerarToken(user.getNome(), Integer.toString(user.getId()));
             CookieHelper cookieHelper = new CookieHelper();
             cookieHelper.setCookie("token", token, Integer.MAX_VALUE);
             return "index?faces-redirect=true";

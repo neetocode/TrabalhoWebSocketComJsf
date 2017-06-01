@@ -17,7 +17,13 @@ ws.onopen = event => {
 };
 
 ws.onmessage = event => {
-    var data = JSON.parse(event.data);
+    var data;
+    try{
+        data = JSON.parse(event.data);
+    }catch(ex){
+        data = event.data;
+    }
+    
     console.log(data);
     switch (data.type) {
         case "message":
@@ -27,6 +33,9 @@ ws.onmessage = event => {
             var chat = chatContainer.querySelector(".chat");
             chat.insertAdjacentHTML('beforeend', renderUserMessage(data.userFrom, data.message, data.sameOrigin));
             chat.scrollTop = chat.scrollHeight;
+            if(idUserFromCurrent !== data.userFrom.id){
+                notificaMensagem(data.userFrom.id);
+            }
             break;
         case "system":
             console.log(data.message);
@@ -48,20 +57,29 @@ ws.onmessage = event => {
 };
 
 ws.onclose = event => {
-    debugger
     console.log("desconectado");
+    close();
 };
 
 btnEnviar.addEventListener('click', sendChatMessage);
-function showChat(idFrom) {
-    chat = getChat(idFrom);
+function notificaMensagem(userFromId){
+    var userElm = document.querySelector(".user[data-id='"+userFromId+"']");
+    userElm.classList.add("new-message");
+}
+function removeNotificaMensagem(userFromId){
+    var userElm = document.querySelector(".user[data-id='"+userFromId+"']");
+    userElm.classList.remove("new-message");
+}
+function showChat(userFromId) {
+    chat = getChat(userFromId);
     if (chat !== null) {
         var allChats = document.querySelectorAll('.chat-container');
         [].forEach.call(allChats,item => {
             item.style.display = 'none';
         });
         chat.style.display = 'block';
-        idUserFromCurrent = idFrom;
+        idUserFromCurrent = userFromId;
+        removeNotificaMensagem(userFromId);
     }
 }
 function getChat(idFrom) {
@@ -94,7 +112,7 @@ function renderUsuarios(usuarios) {
         var retorno = "";
         if (usuario.id !== userCurrent.id) {
             retorno += '<div class="user" data-id="' + usuario.id + '" onclick="showChat(\''+usuario.id+'\')">';
-            retorno += '<span>' + usuario.username + '</span></div>';
+            retorno += '<span>' + usuario.username + '</span><i class="fa fa-circle"/></div>';
         }
         return retorno;
     });
@@ -103,6 +121,10 @@ function renderUsuarios(usuarios) {
 function close() {
     window.history.replaceState({}, 'login', '/TrabalhoWebSocket/faces/login.xhtml');
     window.history.go('/TrabalhoWebSocket/faces/login.xhtml');
+}
+function logout(){
+    document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    close();
 }
 function sendChatMessage(e) {
     e.preventDefault();
