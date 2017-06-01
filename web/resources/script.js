@@ -1,4 +1,3 @@
-
 if (!verificaToken()) {
     close();
 }
@@ -22,7 +21,8 @@ ws.onmessage = event => {
     console.log(data);
     switch (data.type) {
         case "message":
-            var chat = getChat(data.from);
+            data.userFrom = JSON.parse(data.userFrom);
+            var chat = getChat(data.userFrom.id);
             chat.insertAdjacentHTML('beforeend', renderUserMessage(data.userFrom, data.message, data.sameOrigin));
             chat.scrollTop = chat.scrollHeight;
             break;

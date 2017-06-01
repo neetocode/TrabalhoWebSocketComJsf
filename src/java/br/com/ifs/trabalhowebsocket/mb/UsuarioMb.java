@@ -39,7 +39,7 @@ public class UsuarioMb {
                     .sign(algorithm);
             
             CookieHelper cookieHelper = new CookieHelper();
-            cookieHelper.setCookie("token",token,Integer.MAX_VALUE);
+            cookieHelper.setCookie("token", token, Integer.MAX_VALUE);
             return "index?faces-redirect=true";
         } else {
             return "login?faces-redirect=true";
