@@ -10,9 +10,17 @@ package br.com.ifs.trabalhowebsocket.transfer;
  * @author neetocode
  */
 public class Usuario {
-
+    private int id;
     private String nome;
     private String senha;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -29,5 +37,6 @@ public class Usuario {
     public void setSenha(String senha) {
         this.senha = senha;
     }
+   
 
 }

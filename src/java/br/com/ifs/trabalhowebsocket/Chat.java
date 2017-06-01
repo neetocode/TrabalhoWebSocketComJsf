@@ -44,9 +44,11 @@ public class Chat {
                 token = verificaToken(frame.getToken());
                 if (token != null) {
                     userSession.getUserProperties().put("username", token.getClaim("username").asString());
+                    userSession.getUserProperties().put("userid", token.getClaim("userid").asString());
                     userSession.getUserProperties().put("token", token.getToken());
                     userSession.getBasicRemote().sendText(
-                            buildAuthenticationResponseJson(token.getClaim("username").asString(),userSession.getId()));
+                            buildAuthenticationResponseJson(
+                                    token.getClaim("username").asString(),token.getClaim("userid").asString()));
                     enviaUsuarios();
                 } else {
                     userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
@@ -57,18 +59,19 @@ public class Chat {
                 token = verificaToken((String) userSession.getUserProperties().get("token"));
                 if (token != null) {
                     String username = (String) userSession.getUserProperties().get("username");
+                    String userid = (String) userSession.getUserProperties().get("userid");
                     if (frame.getTo().equals("broadcast")) {
                         Iterator<Session> iterator = users.iterator();
                         Session item;
                         while (iterator.hasNext()) {
                             item = iterator.next();
                             boolean sameOrigin = item.getId().equals(userSession.getId());
-                            item.getBasicRemote().sendText(buildMessageResponseJson(username,userSession.getId(),frame.getMessage(),sameOrigin));
+                            item.getBasicRemote().sendText(buildMessageResponseJson(username,userid,frame.getMessage(),sameOrigin));
                         }
                     } else {
                         Session destino = getSessionById(frame.getTo());
-                        destino.getBasicRemote().sendText(buildMessageResponseJson(username,userSession.getId(),frame.getMessage(),false));
-                        userSession.getBasicRemote().sendText(buildMessageResponseJson(username,userSession.getId(),frame.getMessage(),true));
+                        destino.getBasicRemote().sendText(buildMessageResponseJson(username, userid, frame.getMessage(),false));
+                        userSession.getBasicRemote().sendText(buildMessageResponseJson(username, frame.getTo(), frame.getMessage(),true));
                     }
                 } else {
                     userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
@@ -91,7 +94,7 @@ public class Chat {
             usuariosChat.add(
                     new UserChat(
                             (String) item.getUserProperties().get("username"),
-                            item.getId()
+                            (String) item.getUserProperties().get("userid")
                     )
             );
         }
@@ -131,9 +134,9 @@ public class Chat {
         return json;
     }
 
-    private String buildMessageResponseJson(String username,String id, String message, boolean sameOrigin) {
+    private String buildMessageResponseJson(String username, String id, String message, boolean sameOrigin) {
         String json = new JSONObject()
-                .put("userFrom", new JSONObject().put("username",username).put("id",id).toString())
+                .put("userFrom", new JSONObject(new UserChat(username, id)))
                 .put("message", message)
                 .put("type", "message")
                 .put("sameOrigin", sameOrigin)
@@ -165,7 +168,8 @@ public class Chat {
         Session item;
         while (iterator.hasNext()) {
             item = iterator.next();
-            if(item.getId().equals(id)) return item;
+            String userid = (String) item.getUserProperties().get("userid");
+            if(userid.equals(id)) return item;
         }
         
         return null;

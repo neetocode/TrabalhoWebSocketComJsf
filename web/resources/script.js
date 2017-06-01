@@ -21,8 +21,10 @@ ws.onmessage = event => {
     console.log(data);
     switch (data.type) {
         case "message":
-            data.userFrom = JSON.parse(data.userFrom);
-            var chat = getChat(data.userFrom.id);
+            debugger    
+            //data.userFrom = JSON.parse(data.userFrom);
+            var chatContainer = getChat(data.userFrom.id);
+            var chat = chatContainer.querySelector(".chat");
             chat.insertAdjacentHTML('beforeend', renderUserMessage(data.userFrom, data.message, data.sameOrigin));
             chat.scrollTop = chat.scrollHeight;
             break;
@@ -32,6 +34,8 @@ ws.onmessage = event => {
         case "authentication":
             userCurrent.username = data.username;
             userCurrent.id = data.id;
+            document.querySelector("#profile .profile-name").innerHTML = userCurrent.username;
+            document.querySelector("#profile .profile-id").innerHTML = '#'+userCurrent.id;
             console.log(data.message);
             break;
         case "users":
@@ -50,11 +54,10 @@ ws.onclose = event => {
 
 btnEnviar.addEventListener('click', sendChatMessage);
 function showChat(idFrom) {
-    debugger
     chat = getChat(idFrom);
     if (chat !== null) {
         var allChats = document.querySelectorAll('.chat-container');
-        allChats.forEach(item => {
+        [].forEach.call(allChats,item => {
             item.style.display = 'none';
         });
         chat.style.display = 'block';
@@ -88,20 +91,14 @@ function renderChat(userFrom) {
 
 function renderUsuarios(usuarios) {
     var retorno = usuarios.map(usuario => {
-        var retorno;
-        if (usuario.id === userCurrent.id) {
-            retorno = '<div class="user actual">';
-        } else {
-            retorno = '<div class="user" data-id="' + usuario.id + '" onclick="showChat(\''+usuario.id+'\')">';
+        var retorno = "";
+        if (usuario.id !== userCurrent.id) {
+            retorno += '<div class="user" data-id="' + usuario.id + '" onclick="showChat(\''+usuario.id+'\')">';
+            retorno += '<span>' + usuario.username + '</span></div>';
         }
-
-        retorno += '<span>' + usuario.username + '</span></div>';
         return retorno;
     });
     return retorno.join('');
-}
-function userClick(event){
-    debugger
 }
 function close() {
     window.history.replaceState({}, 'login', '/TrabalhoWebSocket/faces/login.xhtml');
@@ -127,9 +124,9 @@ function autentica() {
     };
     ws.send(JSON.stringify(payload));
 }
-function renderUserMessage(username, message, sameOrigin) {
+function renderUserMessage(userFrom, message, sameOrigin) {
     return '<div class="user-message' + (sameOrigin ? ' sameOrigin' : '') + '">' +
-            '<span class="username">' + username + '</span>' +
+            '<span class="username">' + userFrom.username + '</span>' +
             '<span class="message">' + message + '</span>' +
             '</div>';
 }
