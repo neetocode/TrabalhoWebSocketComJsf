@@ -14,19 +14,23 @@ import org.json.JSONObject;
  */
 public class Frame {
     private String message;
-    private String to;
+    private String destination;
     private String username;
     private final String type;
     private String token;
+    public final static String TYPE_AUTHENTICATION = "authentication";
+    public final static String TYPE_MESSAGE = "message";
+    public final static String TYPE_SYSTEM = "system";
+    public final static String TYPE_USERS = "users";
     
     public Frame(JSONObject jsonObject){
         this.type = jsonObject.getString("type");
-        if(this.type.equals("authentication")){
+        if(this.type.equals(TYPE_AUTHENTICATION)){
             this.token = jsonObject.getString("token");
         }
-        if(this.type.equals("message")){
+        if(this.type.equals(TYPE_MESSAGE)){
             this.message = jsonObject.getString("message");
-            this.to = jsonObject.getString("to");
+            this.destination = jsonObject.getString("to");
         }
     }
     
@@ -43,6 +47,6 @@ public class Frame {
         return token;
     }
     public String getTo() {
-        return to;
+        return destination;
     }  
 }

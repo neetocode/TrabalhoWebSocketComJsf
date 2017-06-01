@@ -1,5 +1,8 @@
-package br.com.ifs.trabalhowebsocket;
+package br.com.ifs.trabalhowebsocket.integracao;
 
+import br.com.ifs.trabalhowebsocket.bo.ChatBo;
+import br.com.ifs.trabalhowebsocket.helper.Security;
+import br.com.ifs.trabalhowebsocket.helper.ChatBoRetorno;
 import br.com.ifs.trabalhowebsocket.transfer.Frame;
 import br.com.ifs.trabalhowebsocket.transfer.UserChat;
 import com.auth0.jwt.JWT;
@@ -14,6 +17,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.websocket.Session;
 import javax.websocket.OnOpen;
@@ -25,14 +30,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 @ServerEndpoint("/chat")
-public class Chat {
+public class ChatWs {
 
     static Set<Session> users = Collections.synchronizedSet(new HashSet<Session>());
 
     @OnOpen
-    public void handleOpen(Session userSession) throws IOException {
-        users.add(userSession);
-        userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Conectado ao servidor. Aguardando autenticação..."));
+    public void handleOpen(Session context){
+        ChatBo chatBo = new ChatBo(context);
+        ChatBoRetorno retorno = chatBo.AddUser();
+        send(retorno.getSession(),retorno.getMessage());
     }
 
     @OnMessage
@@ -41,14 +47,14 @@ public class Chat {
         DecodedJWT token;
         switch (frame.getType()) {
             case "authentication":
-                token = verificaToken(frame.getToken());
+                token = Security.verificaToken(frame.getToken());
                 if (token != null) {
-                    userSession.getUserProperties().put("username", token.getClaim("username").asString());
-                    userSession.getUserProperties().put("userid", token.getClaim("userid").asString());
-                    userSession.getUserProperties().put("token", token.getToken());
+                    userSession.getUserProperties().put("username", );
+                    userSession.getUserProperties().put("userid", );
+                    userSession.getUserProperties().put("token", );
                     userSession.getBasicRemote().sendText(
                             buildAuthenticationResponseJson(
-                                    token.getClaim("username").asString(),token.getClaim("userid").asString()));
+                                    token.getClaim("username").asString(), token.getClaim("userid").asString()));
                     enviaUsuarios();
                 } else {
                     userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
@@ -66,26 +72,23 @@ public class Chat {
                         while (iterator.hasNext()) {
                             item = iterator.next();
                             boolean sameOrigin = item.getId().equals(userSession.getId());
-                            item.getBasicRemote().sendText(buildMessageResponseJson(username,userid,frame.getMessage(),sameOrigin));
+                            item.getBasicRemote().sendText(buildMessageResponseJson(username, userid, frame.getMessage(), sameOrigin));
                         }
                     } else {
                         Session destino = getSessionById(frame.getTo());
-                        destino.getBasicRemote().sendText(buildMessageResponseJson(username, userid, frame.getMessage(),false));
-                        userSession.getBasicRemote().sendText(buildMessageResponseJson(username, frame.getTo(), frame.getMessage(),true));
+                        destino.getBasicRemote().sendText(buildMessageResponseJson(username, userid, frame.getMessage(), false));
+                        userSession.getBasicRemote().sendText(buildMessageResponseJson(username, frame.getTo(), frame.getMessage(), true));
                     }
                 } else {
                     userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Falha na autenticação!"));
                     handleClose(userSession);
                 }
                 break;
-            default:
-                userSession.getBasicRemote().sendText(buildSystemMessageResponseJson("Tipo de frame incorreto"));
-                handleClose(userSession);
-                break;   
+            
         }
     }
-    
-    private void enviaUsuarios() throws IOException{
+
+    private void enviaUsuarios() throws IOException {
         Iterator<Session> iterator = users.iterator();
         Session item;
         ArrayList<UserChat> usuariosChat = new ArrayList<>();
@@ -104,9 +107,9 @@ public class Chat {
             item = iterator.next();
             item.getBasicRemote().sendText(buildUsersJson(usuariosChat));
         }
-        
+
     }
-    
+
     private DecodedJWT verificaToken(String token) throws IllegalArgumentException, UnsupportedEncodingException {
         try {
             Algorithm algorithm = Algorithm.HMAC256("batata-doce");
@@ -125,59 +128,36 @@ public class Chat {
         users.remove(userSession);
         enviaUsuarios();
     }
-    
-    private String buildUsersJson(ArrayList<UserChat> users) {
-        String json = new JSONObject()
-                .put("data", new JSONArray(users).toString())
-                .put("type", "users")
-                .toString();
-        return json;
-    }
 
-    private String buildMessageResponseJson(String username, String id, String message, boolean sameOrigin) {
-        String json = new JSONObject()
-                .put("userFrom", new JSONObject(new UserChat(username, id)))
-                .put("message", message)
-                .put("type", "message")
-                .put("sameOrigin", sameOrigin)
-                .toString();
-        return json;
-    }
     
-    private String buildSystemMessageResponseJson(String message) {
-        String json = new JSONObject()
-                .put("message", message)
-                .put("type", "system")
-                .toString();
-        return json;
-    }
-    
-    private String buildAuthenticationResponseJson(String username, String id) {
-        String json = new JSONObject()
-                .put("username",username)
-                .put("id",id)
-                .put("message", "Autenticado")
-                .put("type", "authentication")
-                .toString();
-        return json;
-    }
-    
-    private Session getSessionById(String id){
-        
+
+    private Session getSessionById(String id) {
+
         Iterator<Session> iterator = users.iterator();
         Session item;
         while (iterator.hasNext()) {
             item = iterator.next();
             String userid = (String) item.getUserProperties().get("userid");
-            if(userid.equals(id)) return item;
+            if (userid.equals(id)) {
+                return item;
+            }
         }
-        
+
         return null;
-}
+    }
+    
     
 
     @OnError
     public void onError(Throwable t) {
         System.out.println();
+    }
+    
+    private void send(Session destination, String json){
+        try {
+            destination.getBasicRemote().sendText(json);
+        } catch (IOException ex) {
+            Logger.getLogger(ChatWs.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

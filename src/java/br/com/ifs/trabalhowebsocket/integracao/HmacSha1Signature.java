@@ -1,4 +1,4 @@
-package br.com.ifs.trabalhowebsocket.helper.Jwt;
+package br.com.ifs.trabalhowebsocket.integracao;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
