@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 public class Security {
     public static TokenJwt ValidaToken(String token){
          try {
-            Algorithm algorithm = Algorithm.HMAC256("123");
+            Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(Constantes.PROJECT)
                     .build();
@@ -48,7 +48,7 @@ public class Security {
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             cal.add(Calendar.DAY_OF_WEEK, 1);
-            Algorithm algorithm = Algorithm.HMAC256("123");
+            Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
             String token = JWT.create()
                     .withIssuer(Constantes.PROJECT)
                     .withClaim("username", username)

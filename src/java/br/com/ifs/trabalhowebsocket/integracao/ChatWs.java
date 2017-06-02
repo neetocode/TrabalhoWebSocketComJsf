@@ -2,7 +2,7 @@ package br.com.ifs.trabalhowebsocket.integracao;
 
 import br.com.ifs.trabalhowebsocket.bo.ChatBo;
 import br.com.ifs.trabalhowebsocket.helper.ChatBoRetorno;
-import br.com.ifs.trabalhowebsocket.helper.WsException;
+import br.com.ifs.trabalhowebsocket.exceptions.WsException;
 import br.com.ifs.trabalhowebsocket.transfer.Frame;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ public class ChatWs {
                 handleClose(context);
             }
         } catch (Exception ex) {
+            send(context,ex.getMessage());
             Logger.getLogger(ChatWs.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

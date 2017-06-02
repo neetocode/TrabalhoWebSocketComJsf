@@ -1,4 +1,4 @@
-package br.com.ifs.trabalhowebsocket.helper;
+package br.com.ifs.trabalhowebsocket.exceptions;
 
 /**
  *

@@ -27,7 +27,6 @@ ws.onmessage = event => {
     console.log(data);
     switch (data.type) {
         case "message":
-            debugger    
             //data.userFrom = JSON.parse(data.userFrom);
             var chatContainer = getChat(data.userFrom.id);
             var chat = chatContainer.querySelector(".chat");
@@ -38,7 +37,10 @@ ws.onmessage = event => {
             }
             break;
         case "system":
-            console.log(data.message);
+            var chatContainer = getChat(idUserFromCurrent);
+            var chat = chatContainer.querySelector(".chat");
+            chat.insertAdjacentHTML('beforeend', renderSystemMessage(data.message));
+            chat.scrollTop = chat.scrollHeight;
             break;
         case "authentication":
             userCurrent.username = data.username;
@@ -50,7 +52,8 @@ ws.onmessage = event => {
         case "users":
             var usuarios = JSON.parse(data.data);
             console.log(usuarios);
-            usersContainer.innerHTML = renderUsuarios(usuarios);
+            var conteudo = renderUsuarios(usuarios);
+            usersContainer.innerHTML = conteudo;
             createChats(usuarios);
             break;
     }
@@ -111,8 +114,13 @@ function renderUsuarios(usuarios) {
     var retorno = usuarios.map(usuario => {
         var retorno = "";
         if (usuario.id !== userCurrent.id) {
-            retorno += '<div class="user" data-id="' + usuario.id + '" onclick="showChat(\''+usuario.id+'\')">';
-            retorno += '<span>' + usuario.username + '</span><i class="fa fa-circle"/></div>';
+            if(usuario.online){
+                retorno += '<div class="user online" data-id="' + usuario.id + '" onclick="showChat(\''+usuario.id+'\')">';
+            }else{
+                retorno += '<div class="user" data-id="' + usuario.id + '">';
+            }
+            
+            retorno += '<span>' + usuario.username + '</span><i class="fa fa-circle"></i></div>';
         }
         return retorno;
     });
@@ -123,7 +131,7 @@ function close() {
     window.history.go('/TrabalhoWebSocket/faces/login.xhtml');
 }
 function logout(){
-    document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    deleteAllCookies();
     close();
 }
 function sendChatMessage(e) {
@@ -147,9 +155,11 @@ function autentica() {
     ws.send(JSON.stringify(payload));
 }
 function renderUserMessage(userFrom, message, sameOrigin) {
+    var date = new Date();
     return '<div class="user-message' + (sameOrigin ? ' sameOrigin' : '') + '">' +
             '<span class="username">' + userFrom.username + '</span>' +
             '<span class="message">' + message + '</span>' +
+            '<span class="time">'+date.toLocaleTimeString()+'</span>'+
             '</div>';
 }
 function renderSystemMessage(message) {
@@ -157,7 +167,6 @@ function renderSystemMessage(message) {
             '<span class="message">' + message + '</span>' +
             '</div>';
 }
-
 function verificaToken() {
     var token = getCookie("token");
     if (token === null || token === undefined)
@@ -183,7 +192,16 @@ function getCookie(cname) {
     }
     return null;
 }
+function deleteAllCookies() {
+    var cookies = document.cookie.split(";");
 
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=2000-01-01T00:00:00.000Z";
+    }
+}
 /*
  * mensagem
  * idUsuarioDestino

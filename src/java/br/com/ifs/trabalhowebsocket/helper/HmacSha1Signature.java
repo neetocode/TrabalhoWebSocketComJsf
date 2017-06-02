@@ -1,9 +1,8 @@
-package br.com.ifs.trabalhowebsocket.integracao;
+package br.com.ifs.trabalhowebsocket.helper;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Base64;
 import java.util.Formatter;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,7 +33,7 @@ public class HmacSha1Signature {
         mac.init(signingKey);
         byte[] result = mac.doFinal("foo".getBytes());
         BASE64Encoder encoder = new BASE64Encoder();
-        return new String(encoder.encode(result));      
+        return encoder.encode(result);      
         //return toHexString(mac.doFinal(data.getBytes()));
     }
 }

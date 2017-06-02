@@ -1,21 +1,18 @@
 package br.com.ifs.trabalhowebsocket.bo;
 
+import br.com.ifs.trabalhowebsocket.dao.UsuarioDao;
 import br.com.ifs.trabalhowebsocket.helper.ChatBoRetorno;
 import br.com.ifs.trabalhowebsocket.helper.Security;
-import br.com.ifs.trabalhowebsocket.helper.WsException;
-import br.com.ifs.trabalhowebsocket.integracao.ChatWs;
+import br.com.ifs.trabalhowebsocket.exceptions.WsException;
 import br.com.ifs.trabalhowebsocket.transfer.Frame;
 import br.com.ifs.trabalhowebsocket.transfer.TokenJwt;
 import br.com.ifs.trabalhowebsocket.transfer.UserChat;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import java.io.IOException;
+import br.com.ifs.trabalhowebsocket.transfer.Usuario;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.websocket.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,6 +23,7 @@ import org.json.JSONObject;
  */
 public class ChatBo {
     private static final Set<Session> USERS = Collections.synchronizedSet(new HashSet<Session>());
+    private final UsuarioDao usuarioDao = new UsuarioDao();
     private final Session context;
     
     public ChatBo(Session context){
@@ -59,13 +57,14 @@ public class ChatBo {
                 UserChat userRemetente = new UserChat((String) this.context.getUserProperties().get("username"),(String) this.context.getUserProperties().get("userid"));
                 
                 Session destino = getSessionByUserId(frame.getTo());
-                UserChat userDestino = new UserChat((String) destino.getUserProperties().get("username"),(String) destino.getUserProperties().get("userid"));
                 
                 if(destino != null){
+                    UserChat userDestino = new UserChat((String) destino.getUserProperties().get("username"),(String) destino.getUserProperties().get("userid"));
+                    
                     retorno.add(new ChatBoRetorno(destino,buildMessageJson(userRemetente.getUsername(), userRemetente.getId(), frame.getMessage(), false)));
                     retorno.add(new ChatBoRetorno(this.context,buildMessageJson(userRemetente.getUsername(), userDestino.getId(), frame.getMessage(), true)));
                 }else{
-                    retorno.add(new ChatBoRetorno(this.context,buildSystemJson("Usuário de destino não encontrado")));
+                    retorno.add(new ChatBoRetorno(this.context,buildSystemJson("Usuário não disponível.")));
                 }
                 break;
             default:
@@ -80,15 +79,21 @@ public class ChatBo {
     }
     
     public ArrayList<ChatBoRetorno> enviaUsuarios(ArrayList<ChatBoRetorno> retorno){
+        ArrayList<Usuario> cadastrados = usuarioDao.GetAllUsuarios();
         Iterator<Session> iterator = USERS.iterator();
         ArrayList<UserChat> usuariosChat = new ArrayList<>();
         Session item;
-        while (iterator.hasNext()) {
-            item = iterator.next();
-            String username = (String) item.getUserProperties().get("username");
-            String userid = (String) item.getUserProperties().get("userid");
-            usuariosChat.add(new UserChat(username,userid));
-        }
+        cadastrados.forEach((Usuario cadastrado) ->{
+            boolean online = false;
+            for(Session wsUser : USERS){
+                String wsUserId = (String) wsUser.getUserProperties().get("userid");
+                if(wsUserId.equals(Integer.toString(cadastrado.getId()))){
+                    online = true;
+                    break;
+                }
+            }
+            usuariosChat.add(new UserChat(cadastrado.getNome(),Integer.toString(cadastrado.getId()),online));
+        });
         
         return broadcast(retorno,buildUsersJson(usuariosChat));
     }

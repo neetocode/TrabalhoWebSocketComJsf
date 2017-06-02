@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
-        <title>Facelet Title</title>
+        <title>Login | CHAT IAI?</title>
         <meta charset="utf-8"/>
         <link href="resources/style.css" rel="stylesheet"/>
     </h:head>
@@ -11,16 +11,8 @@
         <h:form>
             <h:inputText value="#{usuarioMb.user.nome}"/>
             <h:inputSecret value="#{usuarioMb.user.senha}"/>
-            <h:commandButton value="Logar" action="#{usuarioMb.logar()}"/>
+            <h:commandButton value="Logar" action="#{usuarioMb.login()}"/>
         </h:form>
-        <!--
-        <h:form id="form">
-            <h:outputText>Chat</h:outputText>
-            <h:inputTextarea rows="2" id="chat"/>
-            <h:inputText id="txtMsg"/>
-            <h:commandButton value="Enviar" id="btnEnviar"/>
-        </h:form>
-        -->
     </h:body>
 
 

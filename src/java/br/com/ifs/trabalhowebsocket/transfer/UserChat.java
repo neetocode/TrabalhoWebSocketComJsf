@@ -12,12 +12,23 @@ package br.com.ifs.trabalhowebsocket.transfer;
 public class UserChat {
     private final String username;
     private final String id;
+    private final boolean online;
 
     public UserChat(String username, String id) {
         this.username = username;
         this.id = id;
+        this.online = false;
     }
     
+    public UserChat(String username, String id, boolean online){
+        this.username = username;
+        this.id = id;
+        this.online = online;
+    }
+    
+    public boolean getOnline() {
+        return this.online;
+    }
     
     public String getUsername() {
         return username;

@@ -6,9 +6,10 @@ html{
 }
 body{
     margin:0;
-    height: 100%
+    height: 100%;
 }
 #main-container{
+    background-image: url(bg.png);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,11 +25,12 @@ body{
 }
 .chat{
     height: 100%;
-    background-color: #e5ddd5;
+    background-color: rgba(229, 221, 213, 0.90);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    
 }
 #left-bar{
     background-color: gray;
@@ -38,36 +40,76 @@ body{
 }
 #users{
     display: flex;
-    flex-direction: column; 
+    flex-direction: row;
+    align-items: center;
+    flex-flow: wrap;
+}
+.user span{
+    text-align: center;
+    font-size: .9em;
 }
 #users .user{
-    padding: 20px 3px;
-    background-color: rgb(85, 173, 164);
-    color: snow;
+    height: 100px;
+    width: 100px;
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 500px;
+    color: #c3c3c3;
     font-weight: 400;
     font-size: 1.1em;
     position: relative;
+    background-color: rgba(103, 103, 103, 0.66);
+    order: 3;
 }
-.user.new-message .fa-circle{
-    color: #C6FF00;
-    font-size: 2em;
-    position: absolute;
-    right: 2%;
-    top: 13px;
-    display: block;
+#users .user.online{
+    background-color: rgb(85, 173, 164);
+    order: 2;
+    color: white;
+}
+
+#users .user.online:hover,
+#users .user.online:active{
+    background-color: rgb(67, 167, 156);
+    cursor: pointer;
+    transition: .05s linear all;
+}
+.user.new-message{
+    order:1;
+}
+.user.new-message{
+    box-shadow: 0 0 0px #dce81a;
+    animation-name: blink-new-message;
+    animation-delay: .2s;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+}
+@keyframes blink-new-message {
+    0% {
+        box-shadow: 0 0 0px #dce81a;
+    }
+    50%{
+        box-shadow: 0 0 15px #dce81a;
+    }
+    100% {
+        box-shadow: 0 0 0px #dce81a;
+    }
+}
+.user.online .fa-circle{
+    color:#296729;
 }
 .user .fa-circle{
-    display:none;
+    position: absolute;
+    bottom: 20%;
+    right: 2%;
+    color: #c37f7f;
 }
 #users .user.actual{
     background-color:rgb(98, 105, 104);
 }
-#users .user:not(.actual):hover,
-#users .user:not(.actual):active{
-    background-color:rgb(51, 134, 125);
-    cursor: pointer;
-    transition: .05s linear all;
-}
+
 .chat .bg{
     background-image: url(bg.png);
     position: absolute;
@@ -98,6 +140,7 @@ body{
     width: auto;
     color:#444141;
     max-width: 80%;
+    position:relative;
 }
 .system-message{
     background-color: #eceaa0;
@@ -116,10 +159,20 @@ body{
 .user-message .message{
     display: block;
     word-wrap: break-word;
+    padding-bottom: 3px;
+}
+.user-message .time{
+    position: absolute;
+    font-size: .7em;
+    color: gray;
+    bottom: 3px;
+    right: 10px;
 }
 .system-message .message{
     text-align: center;
-    display:block;
+    display: block;
+    font-size: .9em;
+    color: #949252;
 }
 .chat-title{
     position: absolute;

@@ -5,6 +5,7 @@
  */
 package br.com.ifs.trabalhowebsocket.integracao;
 
+import br.com.ifs.trabalhowebsocket.helper.HmacSha1Signature;
 import java.io.StringWriter;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
