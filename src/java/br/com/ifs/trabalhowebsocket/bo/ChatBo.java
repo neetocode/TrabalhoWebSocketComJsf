@@ -29,17 +29,27 @@ public class ChatBo {
     public ChatBo(Session context){
         this.context = context;
     }
-    
-    public ChatBoRetorno AddUser(){
+        
+    public ArrayList<ChatBoRetorno> Autentica(String tokenString) throws WsException{
+        ArrayList<ChatBoRetorno> retorno = new ArrayList<>();
+        TokenJwt token = Security.ValidaToken(tokenString);
+        if(token == null) throw new WsException(buildSystemJson("Falha na autenticação"),true);
+                
+        this.context.getUserProperties().put("username", token.getUsername());
+        this.context.getUserProperties().put("userid", token.getUserid());
+        this.context.getUserProperties().put("token", token.getToken());
         ChatBo.USERS.add(this.context);
-        return new ChatBoRetorno(this.context, "Conectado a o servidor, aguardando autenticação...");
+        retorno.add(new ChatBoRetorno(this.context, buildAuthenticationJson(token.getUsername(), token.getUserid())));
+        enviaUsuarios(retorno);
+        
+        return retorno;
     }
     
     public ArrayList<ChatBoRetorno> FrameHandler(Frame frame) throws Exception{
         ArrayList<ChatBoRetorno> retorno = new ArrayList<>();
         TokenJwt token;
         switch(frame.getType()){
-            case Frame.TYPE_AUTHENTICATION:
+            /*case Frame.TYPE_AUTHENTICATION:
                 token = Security.ValidaToken(frame.getToken());
                 if(token == null) throw new WsException(buildSystemJson("Falha na autenticação"),true);
                 
@@ -49,7 +59,7 @@ public class ChatBo {
                 retorno.add(new ChatBoRetorno(this.context, buildAuthenticationJson(token.getUsername(), token.getUserid())));
                 enviaUsuarios(retorno);
                 
-                break;
+                break;*/
             case Frame.TYPE_MESSAGE:
                 token = Security.ValidaToken((String) this.context.getUserProperties().get("token"));
                 if(token == null) throw new WsException(buildSystemJson("Falha na autenticação"),true);
@@ -97,6 +107,7 @@ public class ChatBo {
         
         return broadcast(retorno,buildUsersJson(usuariosChat));
     }
+    
     private ArrayList<ChatBoRetorno> broadcast(ArrayList<ChatBoRetorno> retorno, String message){
         Iterator<Session> iterator = USERS.iterator();
         Session item;

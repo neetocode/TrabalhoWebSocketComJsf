@@ -20,7 +20,8 @@ public class UsuarioMb {
             usuarioBo.GerarESalvarToken(autenticado);
             return "chat?faces-redirect=true";
         } else {
-            return "chat?faces-redirect=true";
+
+            return null;
         }
 
     }
@@ -32,5 +33,7 @@ public class UsuarioMb {
     public void setUser(Usuario user) {
         this.user = user;
     }
+    
+    
 
 }

@@ -1,18 +1,82 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
     <h:head>
         <title>Login | CHAT IAI?</title>
         <meta charset="utf-8"/>
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
         <link href="resources/style.css" rel="stylesheet"/>
+        
+        <style>
+            #container{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                text-align: center;
+                background-color: #90A4AE;
+            }
+            input[type='text'],
+            input[type='password']{
+                display: block;
+                font-size: 2em;
+                border: none;
+                border-bottom: 2px solid white;
+                outline: transparent;
+                margin-bottom: 10px;
+                color: #004D40;
+                background-color: transparent;
+            }
+            input[type='text']:focus,
+            input[type='password']:focus{
+                border-bottom: 2px solid #00BFA5;
+                transition: all .2s ease-in;
+            }
+            input[type='submit']{
+                height: 40px;
+                width: 100%;
+                background-color: #004D40;
+                border: none;
+                color: white;
+                font-size: 1.3em;
+                font-variant: small-caps;
+            }
+            input[type='submit']:hover{
+                background-color:#024237;
+            }
+            label{
+                display: block;
+                text-align: left;
+                font-variant: small-caps;
+                color: white;
+                font-size: 1.2em;
+            }
+            i.fa-comments{
+                font-size: 10em;
+                
+            }
+            
+        </style>
     </h:head>
     <h:body>
-        <h:form>
-            <h:inputText value="#{usuarioMb.user.nome}"/>
-            <h:inputSecret value="#{usuarioMb.user.senha}"/>
-            <h:commandButton value="Logar" action="#{usuarioMb.login()}"/>
-        </h:form>
+        <div id="container">
+            <i class="fa fa-comments logo-chat"/>
+            <h:form>
+                
+                <h:outputLabel for="usuario">Usuário</h:outputLabel>
+                <h:inputText id="usuario" value="#{usuarioMb.user.nome}" a:autofocus="true"/>
+                <h:outputLabel for="senha">Senha</h:outputLabel>
+                <h:inputSecret id="senha" value="#{usuarioMb.user.senha}"/>
+                <h:commandButton value="Logar" action="#{usuarioMb.login()}"/>
+            </h:form>
+        </div>
     </h:body>
 
 

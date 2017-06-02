@@ -3,9 +3,11 @@ package br.com.ifs.trabalhowebsocket.integracao;
 import br.com.ifs.trabalhowebsocket.bo.ChatBo;
 import br.com.ifs.trabalhowebsocket.helper.ChatBoRetorno;
 import br.com.ifs.trabalhowebsocket.exceptions.WsException;
+import br.com.ifs.trabalhowebsocket.helper.QueryString;
 import br.com.ifs.trabalhowebsocket.transfer.Frame;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,10 +22,19 @@ import org.json.JSONObject;
 @ServerEndpoint("/chat")
 public class ChatWs {
     @OnOpen
-    public void handleOpen(Session context){
-        ChatBo chatBo = new ChatBo(context);
-        ChatBoRetorno retorno = chatBo.AddUser();
-        send(retorno.getSession(),retorno.getMessage());
+    public void handleOpen(Session context) throws IOException{
+        try {
+            Map<String, String> queryString = QueryString.decode(context.getQueryString());
+            ChatBo chatBo = new ChatBo(context);
+            ArrayList<ChatBoRetorno> retornos = chatBo.Autentica(queryString.get("t"));
+            
+            send(retornos);
+        } catch (WsException ex) {
+            send(context,ex.getJson());
+            if(ex.shouldClose()){ // verifica se a exception fecha o websocket
+                handleClose(context);
+            }
+        }
     }
 
     @OnMessage
@@ -32,13 +43,12 @@ public class ChatWs {
             Frame frame = new Frame(new JSONObject(jsonFrame));
             ChatBo chatBo = new ChatBo(context);
             ArrayList<ChatBoRetorno> retornos = chatBo.FrameHandler(frame);
-            retornos.forEach((retorno) -> {
-                send(retorno.getSession(), retorno.getMessage());
-            });
+
+            send(retornos);
             
         } catch (WsException ex) {
             send(context,ex.getJson());
-            if(ex.shouldClose()){
+            if(ex.shouldClose()){ // verifica se a exception fecha o websocket
                 handleClose(context);
             }
         } catch (Exception ex) {
@@ -70,5 +80,11 @@ public class ChatWs {
         } catch (IOException ex) {
             Logger.getLogger(ChatWs.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private void send(ArrayList<ChatBoRetorno> retornos){
+        retornos.forEach((retorno) -> {
+            send(retorno.getSession(), retorno.getMessage());
+        });
     }
 }
