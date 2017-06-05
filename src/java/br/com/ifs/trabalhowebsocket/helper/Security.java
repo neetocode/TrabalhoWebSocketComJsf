@@ -5,7 +5,6 @@
  */
 package br.com.ifs.trabalhowebsocket.helper;
 
-import br.com.ifs.trabalhowebsocket.helper.Constantes;
 import br.com.ifs.trabalhowebsocket.transfer.TokenJwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
