@@ -126,7 +126,7 @@ body{
     display:none;
     align-items: center;
     justify-content: center;
-    
+    background-color: #90a4ae;
 }
 #actions-container form{
     display: flex;

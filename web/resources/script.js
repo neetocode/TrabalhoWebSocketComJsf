@@ -10,18 +10,28 @@ var logout, showChat;
     const txtMsg = document.querySelector("#actions-container .txtMsg");
     const usersContainer = document.getElementById("users");
     const actionsContainer = document.getElementById("actions-container");
+    var clicouSair, intervaloReconect;
     var usuarios = [],
             userCurrent = {username: null, id: null},
             userToken,
             idUserFromCurrent = null;
-
-    const ws = new WebSocket("ws://localhost:8080/TrabalhoWebSocket/chat?t=" + userToken);
-
-    ws.onopen = event => {
+    
+    debugger
+    //192.168.43.136
+    
+    var ws;
+    function startaWs(){
+        ws = new WebSocket("ws://localhost:8080/TrabalhoWebSocket/chat?t=" + userToken);
+        ws.onopen = wsOpen;
+        ws.onmessage = wsOnMessage;
+        ws.onclose = wsOnClose;
+    }
+    
+    const wsOpen = event => {
         console.log("conectado");
+        clearInterval(intervaloReconect);
     };
-
-    ws.onmessage = event => {
+    const wsOnMessage = event => {
         var data;
         try {
             data = JSON.parse(event.data);
@@ -63,16 +73,34 @@ var logout, showChat;
                 break;
         }
     };
-
-    ws.onclose = event => {
+    const wsOnClose = event => {
         console.log("desconectado");
-        close();
+        if(event.code !== 1000){
+            console.log("perda de conexão");
+            var tentativas = 0;
+            clearInterval(intervaloReconect);
+            intervaloReconect = setInterval(function(){
+                debugger;
+		console.log("tentando reconectar");
+                startaWs();
+                tentativas++;
+                if(tentativas > 10){
+                    clearInterval(intervaloReconect);
+                    alert("Falha ao tentar conectar, por favor, realize o login novamente.");
+                    close();
+                }
+            },20000);
+        }else{
+            close();
+        }
+        
     };
 
     form.addEventListener('submit', function(e){
         e.preventDefault();
         sendChatMessage();
     });
+    
     function notificaMensagem(userFromId) {
         var userElm = document.querySelector(".user[data-id='" + userFromId + "']");
         userElm.classList.add("new-message");
@@ -142,6 +170,7 @@ var logout, showChat;
         window.history.go('/TrabalhoWebSocket/faces/login.xhtml');
     }
     logout = function logout() {
+        clicouSair = true;
         deleteAllCookies();
         close();
     };
@@ -218,4 +247,5 @@ var logout, showChat;
      * idUsuarioDestino
      * token
      */
+    startaWs();
 })();
