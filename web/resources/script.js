@@ -16,12 +16,11 @@ var logout, showChat;
             userToken,
             idUserFromCurrent = null;
     
-    debugger
     //192.168.43.136
     
     var ws;
     function startaWs(){
-        ws = new WebSocket("ws://localhost:8080/TrabalhoWebSocket/chat?t=" + userToken);
+        ws = new WebSocket("ws://192.168.0.103:43284/TrabalhoWebSocket/chat?t=" + userToken);
         ws.onopen = wsOpen;
         ws.onmessage = wsOnMessage;
         ws.onclose = wsOnClose;

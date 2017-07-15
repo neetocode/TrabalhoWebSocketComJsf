@@ -3,7 +3,23 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/transfer/Usuario.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/integracao/ChatWs.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/dao/UsuarioDao.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/mb/UsuarioMb.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/transfer/TokenJwt.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/bo/ChatBo.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/transfer/UsuarioLogin.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/helper/Security.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/transfer/Frame.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/db/ConnectionFactory.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/helper/Constantes.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/integracao/ApplicationConfig.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/integracao/Service.java</file>
             <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/web/resources/script.js</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/integracao/Jwt.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/bo/UsuarioBo.java</file>
+            <file>file:/C:/Users/neetocode/Documents/NetBeansProjects/TrabalhoWebSocket/src/java/br/com/ifs/trabalhowebsocket/transfer/UserChat.java</file>
         </group>
     </open-files>
 </project-private>

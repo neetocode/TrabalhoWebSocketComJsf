@@ -22,4 +22,14 @@ public class UsuarioBo {
         CookieHelper cookieHelper = new CookieHelper();
         cookieHelper.setCookie("token", token, 7200);
     }
+    
+    public String GerarToken(Usuario usuario){
+        String token = Security.GerarToken(usuario.getNome(), Integer.toString(usuario.getId()));
+        return token;
+    }
+    
+    public String GerarChave(Usuario usuario){
+        String token = Security.GerarToken(usuario.getNome(), Integer.toString(usuario.getId()));
+        return token;
+    }
 }

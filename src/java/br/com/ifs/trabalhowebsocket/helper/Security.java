@@ -6,14 +6,13 @@
 package br.com.ifs.trabalhowebsocket.helper;
 
 import br.com.ifs.trabalhowebsocket.transfer.TokenJwt;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
-import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.crypto.MacProvider;
+import java.security.Key;
+import java.security.SignatureException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,40 +21,46 @@ import java.util.logging.Logger;
  * @author neetocode
  */
 public class Security {
-    public static TokenJwt ValidaToken(String token){
-         try {
-            Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(Constantes.PROJECT)
-                    .build();
-            DecodedJWT jwt = verifier.verify(token);
-            TokenJwt tokenValidado = new TokenJwt(
-                    jwt.getClaim("username").asString(),
-                    jwt.getClaim("userid").asString(), 
-                    jwt.getToken());
-            return tokenValidado;
-        } catch (JWTVerificationException ex) {
-            return null; //TOKEN INVÁLIDO
-        } catch (IllegalArgumentException | UnsupportedEncodingException ex) {
-            Logger.getLogger(Security.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+
+    public static TokenJwt ValidaToken(String token) {
+
+        //Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
+        //JWTVerifier verifier = JWT.require(algorithm)
+        //.withIssuer(Constantes.PROJECT)
+        //      .build();
+        //DecodedJWT jwt = verifier.verify(token);
+        //DecodedJWT jwt = JWT.decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJpc3MiOiJhdXRoMCJ9.AbIJTDMFc7yUa5MhvcP03nJPyCPzZtQcGEp-zWfOkEE");
+        //verifier.verify(token)
+        Jws<Claims> claims = Jwts.parser().setSigningKey(Constantes.HASH_KEY).parseClaimsJws(token);
+        claims.getBody().get("username");
+        TokenJwt tokenValidado = new TokenJwt(
+                //jwt.getClaim("username").asString(),
+                //jwt.getClaim("userid").asString(), 
+                //jwt.getToken()
+                claims.getBody().get("username").toString(),
+                claims.getBody().get("userid").toString(),
+                token
+        );
+        return tokenValidado;
+
     }
-    
-    public static String GerarToken(String username, String userid){
+
+    public static String GerarToken(String username, String userid) {
         try {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(new Date());
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-            Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
-            String token = JWT.create()
-                    .withIssuer(Constantes.PROJECT)
-                    .withClaim("username", username)
-                    .withClaim("userid", userid)
-                    .withExpiresAt(cal.getTime())
-                    .sign(algorithm);
+            Key key = MacProvider.generateKey();
+            //Calendar cal = Calendar.getInstance();
+            //cal.setTime(new Date());
+            //cal.add(Calendar.DAY_OF_WEEK, 1);
+            //Algorithm algorithm = Algorithm.HMAC256(Constantes.HASH_KEY);
+            String token = Jwts.builder()
+                    //.withIssuer(Constantes.PROJECT)
+                    .claim("username", username)
+                    .claim("userid", userid)
+                    .signWith(SignatureAlgorithm.HS512, Constantes.HASH_KEY)
+                    .compact();
+
             return token;
-        } catch (IllegalArgumentException | UnsupportedEncodingException ex) {
+        } catch (IllegalArgumentException ex) {
             Logger.getLogger(Security.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
